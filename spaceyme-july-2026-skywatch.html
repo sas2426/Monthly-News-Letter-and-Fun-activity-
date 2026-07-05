@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpaceYMe · July 2026 SkyWatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0E1F;
+    --card:#131A34;
+    --card-hi:#1B2447;
+    --violet:#7C6FEE;
+    --amber:#F4A93C;
+    --aqua:#3FE0C5;
+    --ink:#ECEBFF;
+    --ink-dim:#9AA0C4;
+    --line: rgba(236,235,255,0.12);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit;}
+  ::selection{background:var(--violet); color:#fff;}
+
+  /* ---------- Starfield ---------- */
+  #starfield{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 5vw;
+    background:rgba(10,14,31,0.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:1.05rem;}
+  .brand-dot{width:10px; height:10px; border-radius:50%; background:var(--amber); box-shadow:0 0 12px var(--amber);}
+  .navlinks{display:flex; gap:22px; font-size:0.82rem; color:var(--ink-dim);}
+  .navlinks a{text-decoration:none; transition:color .2s;}
+  .navlinks a:hover{color:var(--aqua);}
+  .navlinks{display:none;}
+  @media(min-width:800px){.navlinks{display:flex;}}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:120px 6vw 80px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono'; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--aqua); margin-bottom:18px; opacity:0; animation:fadeUp .9s ease forwards;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 6vw, 4.6rem);
+    font-weight:700; line-height:1.05; max-width:16ch;
+    opacity:0; animation:fadeUp .9s ease .15s forwards;
+  }
+  .hero h1 span{color:var(--amber);}
+  .hero p.sub{
+    margin-top:22px; max-width:52ch; color:var(--ink-dim); font-size:1.05rem;
+    opacity:0; animation:fadeUp .9s ease .3s forwards;
+  }
+  @keyframes fadeUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Orbit dial - signature element */
+  .orbit-wrap{
+    margin-top:56px; position:relative; width:min(78vw, 460px); aspect-ratio:1/1;
+    opacity:0; animation:fadeUp 1s ease .45s forwards;
+  }
+  .orbit-wrap svg{width:100%; height:100%; overflow:visible;}
+  .orbit-toggle{
+    margin-top:24px; display:inline-flex; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:4px; gap:4px;
+  }
+  .orbit-toggle button{
+    font-family:'JetBrains Mono'; font-size:0.72rem; padding:8px 16px; border-radius:999px;
+    border:none; background:transparent; color:var(--ink-dim); cursor:pointer; transition:all .2s;
+  }
+  .orbit-toggle button.active{background:var(--violet); color:#fff;}
+  #orbitReadout{margin-top:14px; font-family:'JetBrains Mono'; font-size:0.85rem; color:var(--amber);}
+
+  .scroll-cue{position:absolute; bottom:28px; font-size:0.7rem; color:var(--ink-dim); letter-spacing:0.1em;
+    display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .scroll-cue::after{content:''; width:1px; height:26px; background:linear-gradient(var(--ink-dim), transparent); animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+
+  /* ---------- Sections ---------- */
+  section{position:relative; z-index:1; padding:100px 6vw; max-width:1180px; margin:0 auto;}
+  .section-head{margin-bottom:44px; max-width:60ch;}
+  .section-tag{font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--amber); letter-spacing:0.12em; text-transform:uppercase; display:block; margin-bottom:10px;}
+  .section-head h2{font-size:clamp(1.7rem,3.4vw,2.5rem); font-weight:600;}
+  .section-head p{color:var(--ink-dim); margin-top:12px;}
+
+  .grid{display:grid; gap:18px;}
+  .grid.cols-3{grid-template-columns:repeat(auto-fit, minmax(260px,1fr));}
+  .grid.cols-2{grid-template-columns:repeat(auto-fit, minmax(320px,1fr));}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; transition:transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .card:hover{transform:translateY(-4px); border-color:var(--violet); background:var(--card-hi);}
+  .card .date{font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--aqua); letter-spacing:0.05em; display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .date-ring{width:8px; height:8px; border:2px solid var(--aqua); border-radius:50%;}
+  .card h3{font-size:1.15rem; font-weight:600; margin-bottom:8px;}
+  .card p{color:var(--ink-dim); font-size:0.92rem;}
+  .card .tag{
+    display:inline-block; margin-top:14px; font-family:'JetBrains Mono'; font-size:0.68rem;
+    color:var(--ink-dim); border:1px solid var(--line); padding:3px 9px; border-radius:999px;
+  }
+
+  /* Timeline for missions */
+  .timeline{position:relative; padding-left:28px; border-left:1px solid var(--line);}
+  .t-item{position:relative; padding-bottom:40px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-item::before{
+    content:''; position:absolute; left:-33.5px; top:4px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--violet);
+  }
+  .t-item .date{font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--amber); margin-bottom:6px;}
+  .t-item h3{font-size:1.2rem; margin-bottom:6px;}
+  .t-item p{color:var(--ink-dim); font-size:0.94rem; max-width:64ch;}
+  .flag{font-size:0.85rem; margin-right:6px;}
+
+  /* Globe strip */
+  .globe-strip{display:flex; flex-wrap:wrap; gap:14px;}
+  .globe-chip{
+    flex:1 1 220px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; display:flex; gap:12px; align-items:flex-start;
+  }
+  .globe-chip .flag{font-size:1.4rem; line-height:1;}
+  .globe-chip h4{font-size:0.98rem; margin-bottom:4px;}
+  .globe-chip p{color:var(--ink-dim); font-size:0.86rem;}
+
+  /* ---------- Games ---------- */
+  .game-card{
+    background:linear-gradient(160deg, var(--card), var(--card-hi));
+    border:1px solid var(--line); border-radius:var(--radius); padding:30px;
+  }
+  .game-card h3{font-size:1.3rem; margin-bottom:8px;}
+  .game-card p.desc{color:var(--ink-dim); font-size:0.92rem; margin-bottom:18px;}
+  #meteorCanvas{
+    width:100%; aspect-ratio:16/9; background:radial-gradient(ellipse at 50% 0%, #141c3d, #070a17);
+    border-radius:10px; display:block; cursor:crosshair; touch-action:none;
+  }
+  .game-hud{display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-family:'JetBrains Mono'; font-size:0.85rem;}
+  .btn{
+    font-family:'JetBrains Mono'; font-size:0.8rem; background:var(--violet); color:#fff; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer; transition:background .2s, transform .2s;
+  }
+  .btn:hover{background:#6a5df0; transform:translateY(-1px);}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink);}
+
+  /* Quiz */
+  #quizWrap{margin-top:6px;}
+  .q-progress{font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--ink-dim); margin-bottom:14px;}
+  .q-text{font-size:1.08rem; font-weight:600; margin-bottom:16px;}
+  .q-options{display:grid; gap:10px;}
+  .q-opt{
+    text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:12px 16px;
+    color:var(--ink); cursor:pointer; font-size:0.92rem; transition:all .18s;
+  }
+  .q-opt:hover{border-color:var(--aqua);}
+  .q-opt.correct{border-color:var(--aqua); background:rgba(63,224,197,0.12); color:var(--aqua);}
+  .q-opt.wrong{border-color:#F4634C; background:rgba(244,99,76,0.12); color:#F4988A;}
+  .q-opt[disabled]{cursor:default;}
+  #quizResult{display:none; text-align:center; padding:30px 0;}
+  #quizResult h4{font-size:1.6rem; color:var(--amber); margin-bottom:8px;}
+
+  /* Activity cards */
+  .activity-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+    position:relative; overflow:hidden;
+  }
+  .activity-num{
+    font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.1em;
+  }
+  .activity-card h4{margin-top:10px; font-size:1.05rem;}
+  .activity-card ul{margin-top:12px; padding-left:18px; color:var(--ink-dim); font-size:0.88rem;}
+  .activity-card li{margin-bottom:6px;}
+
+  footer{
+    position:relative; z-index:1; text-align:center; padding:70px 6vw 50px; color:var(--ink-dim);
+    border-top:1px solid var(--line); margin-top:40px;
+  }
+  footer .brand{justify-content:center; margin-bottom:10px;}
+  footer p{font-size:0.85rem;}
+  footer .tagline{font-family:'Space Grotesk'; color:var(--ink); font-size:1rem; margin-bottom:18px;}
+
+  .note{
+    font-size:0.78rem; color:var(--ink-dim); margin-top:10px; border-left:2px solid var(--violet); padding-left:10px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="brand"><span class="brand-dot"></span> SpaceYMe</div>
+  <div class="navlinks">
+    <a href="#sky">SkyWatch</a>
+    <a href="#missions">Missions</a>
+    <a href="#science">Science</a>
+    <a href="#globe">Around the Globe</a>
+    <a href="#play">Play</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="eyebrow">SpaceYMe Monthly Edition · July 2026</span>
+  <h1>SkyWatch Across the Globe: <span>Earth's Slowest, Farthest Month</span></h1>
+  <p class="sub">Space · Aerospace · Science · Research — every July, Earth drifts to the farthest point of its orbit and slows to its laziest pace of the year. Here's everything happening above us this month.</p>
+
+  <div class="orbit-wrap">
+    <svg viewBox="0 0 400 400">
+      <ellipse cx="200" cy="200" rx="150" ry="150" fill="none" stroke="rgba(236,235,255,0.15)" stroke-width="1" stroke-dasharray="3 6"/>
+      <circle cx="200" cy="200" r="14" fill="#F4A93C"/>
+      <circle cx="200" cy="200" r="26" fill="none" stroke="#F4A93C" stroke-width="1" opacity="0.35"/>
+      <circle id="earthMarker" cx="350" cy="200" r="7" fill="#3FE0C5"/>
+      <circle id="earthGlow" cx="350" cy="200" r="14" fill="none" stroke="#3FE0C5" stroke-width="1" opacity="0.5"/>
+    </svg>
+  </div>
+  <div class="orbit-toggle">
+    <button class="active" data-mode="aphelion">Aphelion · Jul 6</button>
+    <button data-mode="perihelion">Perihelion · Jan 3</button>
+  </div>
+  <div id="orbitReadout">152,087,774 km from the Sun — farthest point of Earth's year</div>
+
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<!-- SKYWATCH -->
+<section id="sky">
+  <div class="section-head">
+    <span class="section-tag">Segment 01 — SkyWatch Highlights</span>
+    <h2>What to look up for this month</h2>
+    <p>July's sky is quiet in a specific way: Earth is at its most distant and slowest-moving point, which is why the whole Northern Hemisphere gets its longest season. Here's the observing calendar.</p>
+  </div>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>JUL 4 · BEFORE SUNRISE</div>
+      <h3>Mars–Uranus conjunction</h3>
+      <p>The two planets pass within a fraction of a degree of each other in Gemini — one of the closest pairings of the pair until 2053. Uranus is faint, so you'll want binoculars; Mars sits just below the Pleiades as a helpful signpost.</p>
+      <span class="tag">binoculars recommended</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>JUL 6 · 1:30 PM IST-ADJ.</div>
+      <h3>Earth at aphelion</h3>
+      <p>Earth reaches 152,087,774 km from the Sun — about 5 million km farther than in January. It's still peak Northern summer, proof that seasons come from axial tilt, not distance.</p>
+      <span class="tag">no equipment needed</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>JUL 11–12 · DAWN</div>
+      <h3>Moon, Mars, Saturn & Uranus parade</h3>
+      <p>The Moon walks past Saturn, Mars, Venus, Jupiter and Neptune at different points through the month — before sunrise on the 11th and 12th, all four line up in the eastern sky together.</p>
+      <span class="tag">naked eye + binoculars</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>AROUND JUL 14 · NEW MOON</div>
+      <h3>Milky Way & Comet 10P/Tempel 2</h3>
+      <p>New Moon skies make mid-July the best dark-sky window of the month for the galactic core — and for spotting Comet 10P/Tempel 2, a fuzzy 8th-magnitude glow near Capricornus, brightening toward its August close approach.</p>
+      <span class="tag">dark sky site ideal</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>JUL 30–31 · POST-MIDNIGHT</div>
+      <h3>Southern Delta Aquariids peak</h3>
+      <p>Faint, fast meteors radiating from Aquarius — but 2026's peak falls right after a near-full Buck Moon, so rates will be washed out. Best strategy: watch the moon-free hours the week before.</p>
+      <span class="tag">moonlight will interfere</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>JUL 30–31 · BONUS</div>
+      <h3>Alpha Capricornids, same night</h3>
+      <p>A minor shower overlapping the Aquariids — low count, but known for bright, slow fireballs that can occasionally punch through moonlight.</p>
+      <span class="tag">watch for fireballs</span>
+    </div>
+  </div>
+</section>
+
+<!-- MISSIONS -->
+<section id="missions">
+  <div class="section-head">
+    <span class="section-tag">Segment 02 — Aerospace & Missions</span>
+    <h2>Four spacecraft, four kinds of daring</h2>
+    <p>July 2026 is a genuinely busy month in mission operations — a telescope rescue, two asteroid encounters, and continued lunar groundwork.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="t-item">
+      <div class="date">NASA · JUL 2026 (LAUNCH IN PROGRESS)</div>
+      <h3><span class="flag">🇺🇸</span>Swift Boost: a robotic rescue</h3>
+      <p>NASA's Neil Gehrels Swift Observatory has been losing altitude faster than expected due to rising solar activity. Katalyst Space's robotic LINK spacecraft is attempting to launch on a Pegasus XL rocket from Kwajalein Atoll to grapple Swift and tow it to a stable orbit — the first time a commercial robotic spacecraft has attempted to capture a satellite never designed to be serviced. The first launch attempt was scrubbed on July 2; teams are working toward the next opportunity.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">JAXA · JUL 5, 2026</div>
+      <h3><span class="flag">🇯🇵</span>Hayabusa2# flies by asteroid Torifune</h3>
+      <p>Fresh off its Ryugu sample return, Hayabusa2 is attempting a high-speed flyby of near-Earth asteroid (98943) Torifune — passing as close as 1–10 km from its surface at 5.25 km/s. It's an engineering test for precision close approaches that could one day help deflect a hazardous asteroid.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">CNSA · JUL 4, 2026</div>
+      <h3><span class="flag">🇨🇳</span>Tianwen-2 closes in on Kamoʻoalewa</h3>
+      <p>China's asteroid sample-return probe, already parked near quasi-moon 469219 Kamoʻoalewa since early June, closes to within 20 km this month for its first detailed imaging pass. Scientists are racing to settle a real debate: is Kamoʻoalewa an ordinary asteroid, or a fragment blasted off the Moon itself?</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ONGOING</div>
+      <h3><span class="flag">🌕</span>Commercial lunar groundwork continues</h3>
+      <p>Commercial landers and rover programs continue integration and testing work this month, laying groundwork for upcoming Moon surface deployments later in the decade.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCIENCE -->
+<section id="science">
+  <div class="section-head">
+    <span class="section-tag">Segment 03 — Science & Research</span>
+    <h2>What the data is telling us</h2>
+  </div>
+  <div class="grid cols-3">
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>GAMMA-RAY BURSTS</div>
+      <h3>SVOM keeps watch</h3>
+      <p>The French–Chinese SVOM observatory continues rapid-response monitoring of gamma-ray bursts and other high-energy transients, feeding follow-up campaigns across ground- and space-based telescopes.</p>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>EARLY UNIVERSE</div>
+      <h3>JWST and early barred galaxies</h3>
+      <p>Ongoing James Webb Space Telescope surveys keep turning up barred spiral galaxies at surprisingly early cosmic times — pushing back estimates of when galactic structure like ours first took shape.</p>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>RADIO ASTRONOMY</div>
+      <h3>SKA construction advances</h3>
+      <p>Work continues on the Square Kilometre Array across its South African and Australian sites — the future giant radio observatory built to map cosmic magnetic fields across the Universe.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBE -->
+<section id="globe">
+  <div class="section-head">
+    <span class="section-tag">Segment 04 — Around the Globe</span>
+    <h2>Every space agency, one month</h2>
+  </div>
+  <div class="globe-strip">
+    <div class="globe-chip"><span class="flag">🇺🇸</span><div><h4>United States</h4><p>NASA works the Swift rescue while continuing prep on future science missions.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇪🇺</span><div><h4>Europe</h4><p>Researchers advance astronomy and heliophysics programs across ESA member states.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇯🇵</span><div><h4>Japan</h4><p>JAXA pushes deeper into asteroid science with the Torifune flyby.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇨🇳</span><div><h4>China</h4><p>CNSA expands deep-space reach with Tianwen-2's asteroid encounter.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇮🇳</span><div><h4>India</h4><p>ISRO continues development toward future planetary exploration, including a planned Venus orbiter mission.</p></div></div>
+  </div>
+</section>
+
+<!-- PLAY -->
+<section id="play">
+  <div class="section-head">
+    <span class="section-tag">Segment 05 — Play Along</span>
+    <h2>Fun activities & games</h2>
+    <p>Because SkyWatch isn't just for watching — try these before or after you finish the video.</p>
+  </div>
+
+  <div class="grid cols-2">
+    <!-- METEOR GAME -->
+    <div class="game-card">
+      <h3>🌠 Meteor Catcher</h3>
+      <p class="desc">Southern Delta Aquariids are faint and fast — just like this game. Click or tap the meteors before they streak past. 30 seconds, moonlight makes it harder after 15.</p>
+      <canvas id="meteorCanvas" width="800" height="450"></canvas>
+      <div class="game-hud">
+        <span>SCORE: <span id="mScore" class="mono">0</span></span>
+        <span>TIME: <span id="mTime" class="mono">30</span>s</span>
+        <button class="btn" id="mStart">Start</button>
+      </div>
+      <div class="note">Tip: after the "moon rises" (15s), meteors get fainter and worth more points — just like real moonlit observing.</div>
+    </div>
+
+    <!-- QUIZ GAME -->
+    <div class="game-card">
+      <h3>🛰️ July SkyWatch Quiz</h3>
+      <p class="desc">Six questions pulled straight from this month's episode. See if you were paying attention.</p>
+      <div id="quizWrap">
+        <div class="q-progress" id="qProgress">Question 1 / 6</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+      </div>
+      <div id="quizResult">
+        <h4 id="qScoreText"></h4>
+        <p style="color:var(--ink-dim); margin-bottom:16px;" id="qScoreNote"></p>
+        <button class="btn ghost" id="qRestart">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid cols-3" style="margin-top:36px;">
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>📸 Aphelion sun-size challenge</h4>
+      <ul>
+        <li>Using a proper solar filter, photograph the Sun on July 6 (aphelion).</li>
+        <li>Repeat on any January day near perihelion.</li>
+        <li>Compare — the difference is only ~3.4%, but see if you can spot it.</li>
+      </ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🥧 Paper-plate orbit model</h4>
+      <ul>
+        <li>Draw a slightly stretched oval (not a circle!) on a paper plate.</li>
+        <li>Mark the Sun off-center, toward one end.</li>
+        <li>Mark Earth's July position — farthest from the Sun, moving slowest.</li>
+      </ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🔭 Binocular comet hunt</h4>
+      <ul>
+        <li>Find Capricornus in the pre-dawn sky before July 26.</li>
+        <li>Look for a small fuzzy glow — that's Comet 10P/Tempel 2.</li>
+        <li>Sketch what you see and compare notes with friends.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand" style="justify-content:center;"><span class="brand-dot"></span>SpaceYMe</div>
+  <p class="tagline">Discover Beyond Limits.</p>
+  <p>The universe never stops inspiring us. Keep looking up, stay curious, and join SpaceYMe next month for another journey through the cosmos.</p>
+  <p style="margin-top:14px;">Subscribe · Explore · Inspire</p>
+</footer>
+
+<script>
+/* ---------------- Starfield background ---------------- */
+(function(){
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let w, h, stars = [];
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = document.body.scrollHeight;
+    stars = [];
+    const count = Math.floor((w*h)/9000);
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*w, y: Math.random()*h,
+        r: Math.random()*1.3+0.2,
+        tw: Math.random()*Math.PI*2,
+        speed: Math.random()*0.015+0.005
+      });
+    }
+  }
+  function draw(t){
+    ctx.clearRect(0,0,w,h);
+    for(const s of stars){
+      const alpha = 0.35 + Math.sin(t*s.speed + s.tw)*0.35;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(236,235,255,${Math.max(0,alpha)})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+/* ---------------- Orbit dial toggle ---------------- */
+(function(){
+  const btns = document.querySelectorAll('.orbit-toggle button');
+  const marker = document.getElementById('earthMarker');
+  const glow = document.getElementById('earthGlow');
+  const readout = document.getElementById('orbitReadout');
+  const positions = {
+    aphelion: {x:350, y:200, text:'152,087,774 km from the Sun — farthest point of Earth\'s year'},
+    perihelion: {x:200, y:130, text:'147,100,632 km from the Sun — closest point of Earth\'s year (Jan 3)'}
+  };
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const mode = b.dataset.mode;
+      const pos = positions[mode];
+      marker.setAttribute('cx', pos.x); marker.setAttribute('cy', pos.y);
+      glow.setAttribute('cx', pos.x); glow.setAttribute('cy', pos.y);
+      readout.textContent = pos.text;
+    });
+  });
+})();
+
+/* ---------------- Meteor Catcher game ---------------- */
+(function(){
+  const canvas = document.getElementById('meteorCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('mScore');
+  const timeEl = document.getElementById('mTime');
+  const startBtn = document.getElementById('mStart');
+  let meteors = [], score = 0, timeLeft = 30, running = false, moonUp = false;
+  let rafId, timerId, spawnId;
+
+  function resizeCanvas(){
+    const ratio = canvas.width / canvas.height;
+    const displayWidth = canvas.clientWidth;
+    canvas.width = displayWidth;
+    canvas.height = displayWidth / ratio;
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  function spawnMeteor(){
+    if(!running) return;
+    const startX = Math.random()*canvas.width;
+    meteors.push({
+      x: startX, y: -10,
+      vx: (Math.random()*2-1)*1.5,
+      vy: Math.random()*2.5+2.5,
+      len: Math.random()*40+20,
+      alpha: moonUp ? 0.45 : 1,
+      value: moonUp ? 3 : 1,
+      caught:false,
+      born: performance.now()
+    });
+    spawnId = setTimeout(spawnMeteor, Math.random()*500+350);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    // faint background stars
+    ctx.fillStyle = 'rgba(236,235,255,0.5)';
+    for(let i=0;i<40;i++){
+      ctx.fillRect((i*97)%canvas.width, (i*53)%canvas.height, 1,1);
+    }
+    meteors.forEach(m=>{
+      if(m.caught) return;
+      m.x += m.vx; m.y += m.vy;
+      const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx*m.len, m.y - m.vy*m.len);
+      grad.addColorStop(0, `rgba(244,169,60,${m.alpha})`);
+      grad.addColorStop(1, 'rgba(244,169,60,0)');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x - m.vx*m.len, m.y - m.vy*m.len);
+      ctx.stroke();
+    });
+    meteors = meteors.filter(m => !m.caught && m.y < canvas.height+30 && m.x > -50 && m.x < canvas.width+50);
+    if(running) rafId = requestAnimationFrame(draw);
+  }
+
+  function hitTest(px, py){
+    for(const m of meteors){
+      if(m.caught) continue;
+      const dx = px - m.x, dy = py - m.y;
+      if(Math.sqrt(dx*dx+dy*dy) < 22){
+        m.caught = true;
+        score += m.value;
+        scoreEl.textContent = score;
+        return;
+      }
+    }
+  }
+  canvas.addEventListener('pointerdown', (e)=>{
+    if(!running) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+    hitTest((e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY);
+  });
+
+  function startGame(){
+    resizeCanvas();
+    meteors = []; score = 0; timeLeft = 30; moonUp = false; running = true;
+    scoreEl.textContent = 0; timeEl.textContent = 30;
+    startBtn.textContent = 'Restart';
+    clearTimeout(spawnId); clearInterval(timerId); cancelAnimationFrame(rafId);
+    spawnMeteor();
+    draw();
+    timerId = setInterval(()=>{
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if(timeLeft === 15){ moonUp = true; }
+      if(timeLeft <= 0){
+        running = false;
+        clearInterval(timerId); clearTimeout(spawnId);
+        ctx.fillStyle = 'rgba(10,14,31,0.75)';
+        ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = '#ECEBFF';
+        ctx.font = '600 22px Space Grotesk, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Time's up — you caught ${score} meteors`, canvas.width/2, canvas.height/2);
+      }
+    },1000);
+  }
+  startBtn.addEventListener('click', startGame);
+  resizeCanvas();
+})();
+
+/* ---------------- Quiz game ---------------- */
+(function(){
+  const questions = [
+    {
+      q: "On July 4, 2026, Mars appears in a rare close conjunction with which planet?",
+      opts: ["Neptune","Uranus","Saturn","Jupiter"],
+      a: 1
+    },
+    {
+      q: "Earth's aphelion on July 6 means Earth is at its...",
+      opts: ["Closest point to the Sun","Farthest point to the Sun","Fastest orbital speed","Steepest axial tilt"],
+      a: 1
+    },
+    {
+      q: "Which spacecraft is attempting to rescue NASA's aging Swift Observatory this month?",
+      opts: ["LINK (Katalyst Space)","OSIRIS-APEX","Hayabusa2#","Perseverance"],
+      a: 0
+    },
+    {
+      q: "Hayabusa2's July 5 flyby target is the asteroid...",
+      opts: ["Ryugu","Bennu","Torifune","Itokawa"],
+      a: 2
+    },
+    {
+      q: "Tianwen-2 is closing in on which curious Earth companion this month?",
+      opts: ["Kamoʻoalewa, a quasi-moon","Phobos, a Mars moon","Titan, a Saturn moon","Ceres, a dwarf planet"],
+      a: 0
+    },
+    {
+      q: "Why will the Southern Delta Aquariids be hard to see on July 30–31, 2026?",
+      opts: ["They're too far south","A near-full Moon will wash them out","They only last 10 minutes","Cloud cover is guaranteed"],
+      a: 1
+    }
+  ];
+  let current = 0, score = 0;
+  const qText = document.getElementById('qText');
+  const qOptions = document.getElementById('qOptions');
+  const qProgress = document.getElementById('qProgress');
+  const quizWrap = document.getElementById('quizWrap');
+  const quizResult = document.getElementById('quizResult');
+
+  function renderQuestion(){
+    const item = questions[current];
+    qProgress.textContent = `Question ${current+1} / ${questions.length}`;
+    qText.textContent = item.q;
+    qOptions.innerHTML = '';
+    item.opts.forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'q-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=> selectAnswer(i, btn));
+      qOptions.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(i, btn){
+    const item = questions[current];
+    const allBtns = qOptions.querySelectorAll('.q-opt');
+    allBtns.forEach(b=>b.disabled = true);
+    if(i === item.a){
+      btn.classList.add('correct');
+      score++;
+    } else {
+      btn.classList.add('wrong');
+      allBtns[item.a].classList.add('correct');
+    }
+    setTimeout(()=>{
+      current++;
+      if(current < questions.length){
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }, 900);
+  }
+
+  function showResult(){
+    quizWrap.style.display = 'none';
+    quizResult.style.display = 'block';
+    document.getElementById('qScoreText').textContent = `${score} / ${questions.length}`;
+    const notes = {
+      6:"Perfect — you basically wrote this episode.",
+      5:"Excellent skywatching instincts.",
+      4:"Solid! A rewatch of one segment and you're golden.",
+      3:"Halfway there — worth another look at the mission timeline.",
+      2:"Good start — the SkyWatch segment has more clues.",
+      1:"Give the episode another watch and try again.",
+      0:"Give the episode another watch and try again."
+    };
+    document.getElementById('qScoreNote').textContent = notes[score] || notes[0];
+  }
+
+  document.getElementById('qRestart').addEventListener('click', ()=>{
+    current = 0; score = 0;
+    quizResult.style.display = 'none';
+    quizWrap.style.display = 'block';
+    renderQuestion();
+  });
+
+  renderQuestion();
+})();
+</script>
+</body>
+</html>
