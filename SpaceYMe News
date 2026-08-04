@@ -1,0 +1,126 @@
+import '../models/sky_event.dart';
+import '../models/mission.dart';
+import '../models/quiz_question.dart';
+
+/// All content for the current monthly episode lives in one file.
+/// To publish next month's episode, duplicate this file (e.g.
+/// september_2026_data.dart), update the values below, and point
+/// main.dart / home_screen.dart at the new file.
+
+const String episodeTitle = "August 2026: Eclipse, Comet & Fireballs";
+const String episodeTagline =
+    "A once-in-a-century comet pass, the best Perseids in years, and Europe's first total solar eclipse since 1999 — all in one month.";
+
+final List<SkyEvent> skyEvents = [
+  const SkyEvent(
+    date: "AUG 2–3 · ALL NIGHT",
+    title: "Comet 10P/Tempel 2 at its best",
+    description:
+        "Tempel 2 reaches perihelion on Aug 2 and its closest approach to Earth (62 million km) on Aug 3 — its best apparition in nearly a century. Around magnitude 8, it won't be naked-eye, but binoculars or a small telescope should catch a soft greenish glow in Piscis Austrinus.",
+    tag: "binoculars recommended",
+  ),
+  const SkyEvent(
+    date: "AUG 12 · GLOBAL EVENT",
+    title: "Total solar eclipse over Europe",
+    description:
+        "The Moon's shadow sweeps across the Arctic, Greenland, Iceland, and northern Spain/Portugal — the first total solar eclipse visible from mainland Europe since 1999. Totality lasts up to 2 minutes 18 seconds. The rest of Europe, North Africa, and parts of North America see a partial eclipse. Not visible from India — but a huge day for skywatchers worldwide.",
+    tag: "eye protection required",
+  ),
+  const SkyEvent(
+    date: "AUG 12–13 · POST-MIDNIGHT",
+    title: "Perseids peak — perfect dark skies",
+    description:
+        "The year's most reliable meteor shower peaks the same night as a brand-new Moon, wiping out all moonlight interference. Up to 90–100 meteors an hour under dark skies, best between midnight and dawn. One of the best Perseid years in a decade.",
+    tag: "no equipment needed",
+  ),
+  const SkyEvent(
+    date: "JUL 27 · BONUS (LEAD-IN)",
+    title: "Comet Tempel 2 meets Messier 30",
+    description:
+        "In the nights just before its peak, the comet drifts past the globular cluster Messier 30 — a rare chance to frame a comet and a cluster in the same eyepiece view.",
+    tag: "small telescope ideal",
+  ),
+];
+
+final List<Mission> missions = [
+  const Mission(
+    flagEmoji: "🇺🇸",
+    agency: "NASA",
+    date: "AUG 2026 · MISSION AT RISK",
+    title: "Swift Boost rescue hits trouble",
+    description:
+        "Katalyst Space's LINK spacecraft — sent to grapple and reboost the aging Swift Observatory — has entered an uncontrolled multi-axis spin after launch, putting the rescue attempt in jeopardy. Teams are working to regain control before Swift's orbit decays further.",
+  ),
+  const Mission(
+    flagEmoji: "🇺🇸",
+    agency: "NASA",
+    date: "AUG 6 ONWARD",
+    title: "Three spacewalks at the ISS",
+    description:
+        "NASA astronauts head outside the International Space Station for a series of three spacewalks this month, continuing station maintenance and upgrade work in low Earth orbit.",
+  ),
+  const Mission(
+    flagEmoji: "🇮🇳",
+    agency: "ISRO",
+    date: "ONGOING · TARGETING G1",
+    title: "Gaganyaan clears a major hurdle",
+    description:
+        "India's human spaceflight program has cleared critical hardware testing for its human-rated launch vehicle, crew capsule, and escape systems, while the Gaganyatri astronauts complete training in Russia — groundwork for the uncrewed G1 test flight carrying the humanoid robot Vyommitra.",
+  ),
+  const Mission(
+    flagEmoji: "🇨🇳",
+    agency: "CNSA",
+    date: "ONGOING",
+    title: "Tianwen-2 continues at Kamoʻoalewa",
+    description:
+        "Fresh off last month's close imaging pass, Tianwen-2 continues characterizing quasi-moon Kamoʻoalewa ahead of its planned sample-collection attempt — still working to settle whether it's an asteroid or a fragment of our own Moon.",
+  ),
+];
+
+final List<QuizQuestion> quizQuestions = [
+  const QuizQuestion(
+    question: "Comet 10P/Tempel 2 makes its closest approach to Earth on which date?",
+    options: ["August 3", "August 12", "August 19", "August 30"],
+    correctIndex: 0,
+  ),
+  const QuizQuestion(
+    question: "Why is the August 12, 2026 solar eclipse historically significant for Europe?",
+    options: [
+      "It's the longest eclipse ever recorded",
+      "First total solar eclipse visible from mainland Europe since 1999",
+      "It's visible from every continent",
+      "It coincides with a lunar eclipse the same day",
+    ],
+    correctIndex: 1,
+  ),
+  const QuizQuestion(
+    question: "What makes the 2026 Perseids especially good for viewing?",
+    options: [
+      "They peak during a full Moon",
+      "They peak during a brand-new Moon",
+      "They're visible only from the Southern Hemisphere",
+      "They last just one hour",
+    ],
+    correctIndex: 1,
+  ),
+  const QuizQuestion(
+    question: "What problem is NASA's Swift Boost rescue spacecraft (LINK) facing this month?",
+    options: [
+      "It ran out of fuel",
+      "It missed its launch window entirely",
+      "It entered an uncontrolled multi-axis spin",
+      "It lost contact with ground control permanently",
+    ],
+    correctIndex: 2,
+  ),
+  const QuizQuestion(
+    question: "ISRO's Gaganyaan G1 test flight will carry which humanoid robot?",
+    options: ["Vyommitra", "Robonaut", "CIMON", "Fedor"],
+    correctIndex: 0,
+  ),
+  const QuizQuestion(
+    question: "Which globular cluster does Comet Tempel 2 pass near in late July, just before its peak?",
+    options: ["Messier 13", "Messier 30", "Messier 4", "Messier 22"],
+    correctIndex: 1,
+  ),
+];
