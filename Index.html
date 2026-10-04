@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpaceYMe · October 2026 SkyWatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0E1F;
+    --card:#131A34;
+    --card-hi:#1B2447;
+    --violet:#7C6FEE;
+    --amber:#F4A93C;
+    --aqua:#3FE0C5;
+    --ink:#ECEBFF;
+    --ink-dim:#9AA0C4;
+    --line: rgba(236,235,255,0.12);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit;}
+  ::selection{background:var(--violet); color:#fff;}
+
+  #starfield{position:fixed; inset:0; z-index:0; pointer-events:none;}
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 5vw;
+    background:rgba(10,14,31,0.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:1.05rem;}
+  .brand-dot{width:10px; height:10px; border-radius:50%; background:var(--amber); box-shadow:0 0 12px var(--amber);}
+  .navlinks{display:none; gap:22px; font-size:0.82rem; color:var(--ink-dim);}
+  .navlinks a{text-decoration:none; transition:color .2s;}
+  .navlinks a:hover{color:var(--aqua);}
+  @media(min-width:800px){.navlinks{display:flex;}}
+
+  .hero{
+    position:relative; z-index:1; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:120px 6vw 80px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono'; font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--aqua); margin-bottom:18px; opacity:0; animation:fadeUp .9s ease forwards;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 6vw, 4.6rem); font-weight:700; line-height:1.05; max-width:18ch;
+    opacity:0; animation:fadeUp .9s ease .15s forwards;
+  }
+  .hero h1 span{color:var(--amber);}
+  .hero p.sub{
+    margin-top:22px; max-width:54ch; color:var(--ink-dim); font-size:1.05rem;
+    opacity:0; animation:fadeUp .9s ease .3s forwards;
+  }
+  @keyframes fadeUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Saturn ring dial - signature element */
+  .ring-wrap{
+    margin-top:56px; position:relative; width:min(72vw, 340px); aspect-ratio:1/1;
+    opacity:0; animation:fadeUp 1s ease .45s forwards;
+  }
+  .ring-wrap svg{width:100%; height:100%; overflow:visible;}
+  #ringEllipse{transition: ry 0.6s cubic-bezier(.4,0,.2,1);}
+  .ring-toggle{
+    margin-top:24px; display:inline-flex; background:var(--card); border:1px solid var(--line);
+    border-radius:999px; padding:4px; gap:4px;
+  }
+  .ring-toggle button{
+    font-family:'JetBrains Mono'; font-size:0.7rem; padding:8px 14px; border-radius:999px;
+    border:none; background:transparent; color:var(--ink-dim); cursor:pointer; transition:all .2s;
+  }
+  .ring-toggle button.active{background:var(--violet); color:#fff;}
+  #ringReadout{margin-top:14px; font-family:'JetBrains Mono'; font-size:0.82rem; color:var(--amber); max-width:36ch;}
+
+  .scroll-cue{position:absolute; bottom:28px; font-size:0.7rem; color:var(--ink-dim); letter-spacing:0.1em;
+    display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .scroll-cue::after{content:''; width:1px; height:26px; background:linear-gradient(var(--ink-dim), transparent); animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+
+  section{position:relative; z-index:1; padding:100px 6vw; max-width:1180px; margin:0 auto;}
+  .section-head{margin-bottom:44px; max-width:60ch;}
+  .section-tag{font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--amber); letter-spacing:0.12em; text-transform:uppercase; display:block; margin-bottom:10px;}
+  .section-head h2{font-size:clamp(1.7rem,3.4vw,2.5rem); font-weight:600;}
+  .section-head p{color:var(--ink-dim); margin-top:12px;}
+
+  .grid{display:grid; gap:18px;}
+  .grid.cols-3{grid-template-columns:repeat(auto-fit, minmax(260px,1fr));}
+  .grid.cols-2{grid-template-columns:repeat(auto-fit, minmax(320px,1fr));}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; transition:transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .card:hover{transform:translateY(-4px); border-color:var(--violet); background:var(--card-hi);}
+  .card .date{font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--aqua); letter-spacing:0.05em; display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .date-ring{width:8px; height:8px; border:2px solid var(--aqua); border-radius:50%;}
+  .card h3{font-size:1.15rem; font-weight:600; margin-bottom:8px;}
+  .card p{color:var(--ink-dim); font-size:0.92rem;}
+  .card .tag{
+    display:inline-block; margin-top:14px; font-family:'JetBrains Mono'; font-size:0.68rem;
+    color:var(--ink-dim); border:1px solid var(--line); padding:3px 9px; border-radius:999px;
+  }
+
+  .timeline{position:relative; padding-left:28px; border-left:1px solid var(--line);}
+  .t-item{position:relative; padding-bottom:40px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-item::before{
+    content:''; position:absolute; left:-33.5px; top:4px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--violet);
+  }
+  .t-item .date{font-family:'JetBrains Mono'; font-size:0.72rem; color:var(--amber); margin-bottom:6px;}
+  .t-item h3{font-size:1.2rem; margin-bottom:6px;}
+  .t-item p{color:var(--ink-dim); font-size:0.94rem; max-width:64ch;}
+  .flag{font-size:0.85rem; margin-right:6px;}
+
+  .globe-strip{display:flex; flex-wrap:wrap; gap:14px;}
+  .globe-chip{
+    flex:1 1 220px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px; display:flex; gap:12px; align-items:flex-start;
+  }
+  .globe-chip .flag{font-size:1.4rem; line-height:1;}
+  .globe-chip h4{font-size:0.98rem; margin-bottom:4px;}
+  .globe-chip p{color:var(--ink-dim); font-size:0.86rem;}
+
+  .game-card{
+    background:linear-gradient(160deg, var(--card), var(--card-hi));
+    border:1px solid var(--line); border-radius:var(--radius); padding:30px;
+  }
+  .game-card h3{font-size:1.3rem; margin-bottom:8px;}
+  .game-card p.desc{color:var(--ink-dim); font-size:0.92rem; margin-bottom:18px;}
+  #meteorCanvas{
+    width:100%; aspect-ratio:16/9; background:radial-gradient(ellipse at 50% 0%, #141c3d, #070a17);
+    border-radius:10px; display:block; cursor:crosshair; touch-action:none;
+  }
+  .game-hud{display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-family:'JetBrains Mono'; font-size:0.85rem;}
+  .btn{
+    font-family:'JetBrains Mono'; font-size:0.8rem; background:var(--violet); color:#fff; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer; transition:background .2s, transform .2s;
+  }
+  .btn:hover{background:#6a5df0; transform:translateY(-1px);}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink);}
+
+  #quizWrap{margin-top:6px;}
+  .q-progress{font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--ink-dim); margin-bottom:14px;}
+  .q-text{font-size:1.08rem; font-weight:600; margin-bottom:16px;}
+  .q-options{display:grid; gap:10px;}
+  .q-opt{
+    text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:12px 16px;
+    color:var(--ink); cursor:pointer; font-size:0.92rem; transition:all .18s;
+  }
+  .q-opt:hover{border-color:var(--aqua);}
+  .q-opt.correct{border-color:var(--aqua); background:rgba(63,224,197,0.12); color:var(--aqua);}
+  .q-opt.wrong{border-color:#F4634C; background:rgba(244,99,76,0.12); color:#F4988A;}
+  .q-opt[disabled]{cursor:default;}
+  #quizResult{display:none; text-align:center; padding:30px 0;}
+  #quizResult h4{font-size:1.6rem; color:var(--amber); margin-bottom:8px;}
+
+  .activity-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+  }
+  .activity-num{font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.1em;}
+  .activity-card h4{margin-top:10px; font-size:1.05rem;}
+  .activity-card ul{margin-top:12px; padding-left:18px; color:var(--ink-dim); font-size:0.88rem;}
+  .activity-card li{margin-bottom:6px;}
+
+  footer{
+    position:relative; z-index:1; text-align:center; padding:70px 6vw 50px; color:var(--ink-dim);
+    border-top:1px solid var(--line); margin-top:40px;
+  }
+  footer .brand{justify-content:center; margin-bottom:10px;}
+  footer p{font-size:0.85rem;}
+  footer .tagline{font-family:'Space Grotesk'; color:var(--ink); font-size:1rem; margin-bottom:18px;}
+
+  .note{font-size:0.78rem; color:var(--ink-dim); margin-top:10px; border-left:2px solid var(--violet); padding-left:10px;}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="brand"><span class="brand-dot"></span> SpaceYMe</div>
+  <div class="navlinks">
+    <a href="#sky">SkyWatch</a>
+    <a href="#missions">Missions</a>
+    <a href="#globe">Around the Globe</a>
+    <a href="#play">Play</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="eyebrow">SpaceYMe Monthly Edition · October 2026</span>
+  <h1>Saturn's Best <span>Ring Show</span> in Years</h1>
+  <p class="sub">Space · Aerospace · Science · Research — Saturn reaches opposition, two meteor showers bookend the month, and a record-fast crew launch kicks off October in orbit.</p>
+
+  <div class="ring-wrap">
+    <svg viewBox="0 0 340 300">
+      <ellipse id="ringEllipse" cx="170" cy="150" rx="140" ry="20" fill="none" stroke="#F4A93C" stroke-width="10" opacity="0.55"/>
+      <circle cx="170" cy="150" r="62" fill="#F4A93C"/>
+      <circle cx="170" cy="150" r="62" fill="none" stroke="#0A0E1F" stroke-width="1" opacity="0.15"/>
+    </svg>
+  </div>
+  <div class="ring-toggle">
+    <button data-mode="2025">2025 · edge-on</button>
+    <button class="active" data-mode="2026">2026 · opening up</button>
+  </div>
+  <div id="ringReadout">Ring tilt has recovered to about 7.5° — the most open view of Saturn's rings since 2023, building toward Oct 4 opposition.</div>
+
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<!-- SKYWATCH -->
+<section id="sky">
+  <div class="section-head">
+    <span class="section-tag">Segment 01 — SkyWatch Highlights</span>
+    <h2>What to look up for this month</h2>
+    <p>October delivers a planet at its best and brightest, plus two meteor showers on opposite ends of the lunar cycle — one in near-total darkness, one fighting moonlight.</p>
+  </div>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>OCT 4 · ALL NIGHT</div>
+      <h3>Saturn at opposition</h3>
+      <p>Saturn sits directly opposite the Sun, rising at sunset and visible all night at its closest, brightest point of the year. With rings opened to about 7.5°, this is the best telescope view of Saturn since 2023.</p>
+      <span class="tag">telescope recommended</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>OCT 8–9 · EVENING</div>
+      <h3>Draconids peak — near-moonless</h3>
+      <p>A modest shower (about 5–10/hr) but 2026 is a great year for it: the Moon is nearly new, and unlike most showers, the Draconids are best right after nightfall rather than after midnight. From South Asia, catch the evening of the 8th — the predicted peak falls near dawn locally.</p>
+      <span class="tag">no equipment needed</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>OCT 21–22 · PRE-DAWN</div>
+      <h3>Orionids peak — Halley's debris</h3>
+      <p>Earth passes through dust shed by Halley's Comet, producing fast meteors (66 km/s) radiating from Orion. A waxing gibbous Moon will wash out fainter ones this year — best after the Moon sets, in the hours before dawn.</p>
+      <span class="tag">moonlight will interfere</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>OCT 26</div>
+      <h3>Full Hunter's Moon</h3>
+      <p>October's full Moon, traditionally tied to preparing for winter, rises big and golden near the horizon — a good naked-eye and photography target the evening before peak illumination.</p>
+      <span class="tag">naked eye</span>
+    </div>
+  </div>
+</section>
+
+<!-- MISSIONS -->
+<section id="missions">
+  <div class="section-head">
+    <span class="section-tag">Segment 02 — Aerospace & Missions</span>
+    <h2>A record-fast launch, and India's SSLV goes commercial</h2>
+    <p>October opens with back-to-back launches from Florida and continues with real milestones for India's space program.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="t-item">
+      <div class="date">NASA / SPACEX · OCT 1</div>
+      <h3><span class="flag">🇺🇸</span>Crew-13 docks in record time</h3>
+      <p>Jessica Watkins (becoming the first NASA astronaut to fly twice on a SpaceX Dragon), pilot Luke Delaney, Roscosmos cosmonaut Sergey Teteryatnikov, and CSA's Joshua Kutryk launch aboard Dragon "Grace" — and dock at the ISS in under 8 hours, the fastest crewed U.S. spacecraft rendezvous ever.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">SPACEX · OCT 1</div>
+      <h3><span class="flag">🇺🇸</span>Falcon Heavy's first NRO mission</h3>
+      <p>Hours after Crew-13, a Falcon Heavy launches a classified reconnaissance payload for the U.S. National Reconnaissance Office — part of a SpaceX tripleheader of three launches in under 13 hours.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ISRO · OCT 15</div>
+      <h3><span class="flag">🇮🇳</span>GSLV Mk II lofts NVS-03</h3>
+      <p>India's GSLV Mk II launches the NVS-03 navigation satellite to geosynchronous orbit, strengthening the NavIC regional navigation constellation.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ISRO · OCTOBER</div>
+      <h3><span class="flag">🇮🇳</span>SSLV's first commercial flight</h3>
+      <p>ISRO's Small Satellite Launch Vehicle flies its first fully commercial mission this month — a milestone for India's push into the small-satellite launch market.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ISRO · LOOKING AHEAD</div>
+      <h3><span class="flag">🇮🇳</span>Gaganyaan-1 closes in on November</h3>
+      <p>With hardware testing complete, India's uncrewed Gaganyaan-1 test flight — carrying humanoid robot Vyommitra — is now tracking toward a November launch window.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GLOBE -->
+<section id="globe">
+  <div class="section-head">
+    <span class="section-tag">Segment 03 — Around the Globe</span>
+    <h2>Every space agency, one month</h2>
+  </div>
+  <div class="globe-strip">
+    <div class="globe-chip"><span class="flag">🇺🇸</span><div><h4>United States</h4><p>NASA and SpaceX open October with a record-fast ISS docking and the first Falcon Heavy NRO launch.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇮🇳</span><div><h4>India</h4><p>ISRO launches NVS-03, flies SSLV commercially for the first time, and closes in on Gaganyaan-1.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇷🇺</span><div><h4>Russia</h4><p>Cosmonaut Sergey Teteryatnikov joins Crew-13 for a long-duration stay aboard the ISS.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇨🇦</span><div><h4>Canada</h4><p>Joshua Kutryk becomes the second Canadian in space this year, after Jeremy Hansen's Artemis II flight.</p></div></div>
+  </div>
+</section>
+
+<!-- PLAY -->
+<section id="play">
+  <div class="section-head">
+    <span class="section-tag">Segment 04 — Play Along</span>
+    <h2>Fun activities & games</h2>
+    <p>Because SkyWatch isn't just for watching — try these before or after you finish the video.</p>
+  </div>
+
+  <div class="grid cols-2">
+    <!-- ORIONID GAME -->
+    <div class="game-card">
+      <h3>☄️ Orionid Hunter</h3>
+      <p class="desc">Orionids move at 66 km/s — the fastest meteors of the year. Click or tap them before they streak past. 30 seconds, and these ones don't wait around.</p>
+      <canvas id="meteorCanvas" width="800" height="450"></canvas>
+      <div class="game-hud">
+        <span>SCORE: <span id="mScore" class="mono">0</span></span>
+        <span>TIME: <span id="mTime" class="mono">30</span>s</span>
+        <button class="btn" id="mStart">Start</button>
+      </div>
+      <div class="note">Tip: these meteors are debris from Halley's Comet — the same comet, a different month, than May's Eta Aquariids.</div>
+    </div>
+
+    <!-- QUIZ GAME -->
+    <div class="game-card">
+      <h3>🛰️ October SkyWatch Quiz</h3>
+      <p class="desc">Six questions pulled straight from this month's episode. See if you were paying attention.</p>
+      <div id="quizWrap">
+        <div class="q-progress" id="qProgress">Question 1 / 6</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+      </div>
+      <div id="quizResult">
+        <h4 id="qScoreText"></h4>
+        <p style="color:var(--ink-dim); margin-bottom:16px;" id="qScoreNote"></p>
+        <button class="btn ghost" id="qRestart">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid cols-3" style="margin-top:36px;">
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🪐 Saturn ring sketch #2</h4>
+      <ul>
+        <li>If you sketched Saturn in September, pull it out again on Oct 4.</li>
+        <li>Sketch the rings once more at opposition — Saturn is bigger and brighter now.</li>
+        <li>Compare the two sketches side by side.</li>
+      </ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🌠 Two-shower meteor log</h4>
+      <ul>
+        <li>Watch 20 minutes on the evening of Oct 8 (Draconids) and 20 minutes predawn on Oct 21 (Orionids).</li>
+        <li>Count meteors in each session.</li>
+        <li>Compare: which shower actually produced more for you, despite the "official" rates?</li>
+      </ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🌕 Hunter's Moon photo</h4>
+      <ul>
+        <li>Photograph the Moon as it rises on Oct 25–26, when it looks huge near the horizon.</li>
+        <li>Take a second photo once it's high overhead.</li>
+        <li>Compare sizes — the "Moon illusion" means it's actually the same size both times.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand" style="justify-content:center;"><span class="brand-dot"></span>SpaceYMe</div>
+  <p class="tagline">Discover Beyond Limits.</p>
+  <p>The universe never stops inspiring us. Keep looking up, stay curious, and join SpaceYMe next month for another journey through the cosmos.</p>
+  <p style="margin-top:14px;">Subscribe · Explore · Inspire</p>
+</footer>
+
+<script>
+/* ---------------- Starfield background ---------------- */
+(function(){
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let w, h, stars = [];
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = document.body.scrollHeight;
+    stars = [];
+    const count = Math.floor((w*h)/9000);
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*w, y: Math.random()*h,
+        r: Math.random()*1.3+0.2,
+        tw: Math.random()*Math.PI*2,
+        speed: Math.random()*0.015+0.005
+      });
+    }
+  }
+  function draw(t){
+    ctx.clearRect(0,0,w,h);
+    for(const s of stars){
+      const alpha = 0.35 + Math.sin(t*s.speed + s.tw)*0.35;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(236,235,255,${Math.max(0,alpha)})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+/* ---------------- Ring tilt toggle ---------------- */
+(function(){
+  const btns = document.querySelectorAll('.ring-toggle button');
+  const ring = document.getElementById('ringEllipse');
+  const readout = document.getElementById('ringReadout');
+  const states = {
+    '2025': {ry:4, text:"2025: Saturn's rings were nearly edge-on from Earth — barely visible even in a telescope."},
+    '2026': {ry:20, text:"Ring tilt has recovered to about 7.5° — the most open view of Saturn's rings since 2023, building toward Oct 4 opposition."}
+  };
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const mode = b.dataset.mode;
+      ring.setAttribute('ry', states[mode].ry);
+      readout.textContent = states[mode].text;
+    });
+  });
+})();
+
+/* ---------------- Orionid Hunter game ---------------- */
+(function(){
+  const canvas = document.getElementById('meteorCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('mScore');
+  const timeEl = document.getElementById('mTime');
+  const startBtn = document.getElementById('mStart');
+  let meteors = [], score = 0, timeLeft = 30, running = false;
+  let rafId, timerId, spawnId;
+
+  function resizeCanvas(){
+    const ratio = canvas.width / canvas.height;
+    const displayWidth = canvas.clientWidth;
+    canvas.width = displayWidth;
+    canvas.height = displayWidth / ratio;
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  function spawnMeteor(){
+    if(!running) return;
+    const startX = Math.random()*canvas.width;
+    meteors.push({
+      x: startX, y: -10,
+      vx: (Math.random()*2-1)*2,
+      vy: Math.random()*3.5+4,
+      len: Math.random()*45+25,
+      value: 1,
+      caught:false
+    });
+    spawnId = setTimeout(spawnMeteor, Math.random()*400+250);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(236,235,255,0.5)';
+    for(let i=0;i<40;i++){
+      ctx.fillRect((i*97)%canvas.width, (i*53)%canvas.height, 1,1);
+    }
+    meteors.forEach(m=>{
+      if(m.caught) return;
+      m.x += m.vx; m.y += m.vy;
+      const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx*m.len, m.y - m.vy*m.len);
+      grad.addColorStop(0, 'rgba(244,169,60,1)');
+      grad.addColorStop(1, 'rgba(244,169,60,0)');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x - m.vx*m.len, m.y - m.vy*m.len);
+      ctx.stroke();
+    });
+    meteors = meteors.filter(m => !m.caught && m.y < canvas.height+30 && m.x > -50 && m.x < canvas.width+50);
+    if(running) rafId = requestAnimationFrame(draw);
+  }
+
+  function hitTest(px, py){
+    for(const m of meteors){
+      if(m.caught) continue;
+      const dx = px - m.x, dy = py - m.y;
+      if(Math.sqrt(dx*dx+dy*dy) < 24){
+        m.caught = true;
+        score += m.value;
+        scoreEl.textContent = score;
+        return;
+      }
+    }
+  }
+  canvas.addEventListener('pointerdown', (e)=>{
+    if(!running) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+    hitTest((e.clientX-rect.left)*scaleX, (e.clientY-rect.top)*scaleY);
+  });
+
+  function startGame(){
+    resizeCanvas();
+    meteors = []; score = 0; timeLeft = 30; running = true;
+    scoreEl.textContent = 0; timeEl.textContent = 30;
+    startBtn.textContent = 'Restart';
+    clearTimeout(spawnId); clearInterval(timerId); cancelAnimationFrame(rafId);
+    spawnMeteor();
+    draw();
+    timerId = setInterval(()=>{
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if(timeLeft <= 0){
+        running = false;
+        clearInterval(timerId); clearTimeout(spawnId);
+        ctx.fillStyle = 'rgba(10,14,31,0.75)';
+        ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = '#ECEBFF';
+        ctx.font = '600 22px Space Grotesk, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Time's up — you caught ${score} meteors`, canvas.width/2, canvas.height/2);
+      }
+    },1000);
+  }
+  startBtn.addEventListener('click', startGame);
+  resizeCanvas();
+})();
+
+/* ---------------- Quiz game ---------------- */
+(function(){
+  const questions = [
+    {
+      q: "Saturn reaches opposition — its closest, brightest point of the year — on which date in October 2026?",
+      opts: ["October 1","October 4","October 15","October 26"],
+      a: 1
+    },
+    {
+      q: "Why is 2026 an especially good year to view Saturn's rings?",
+      opts: ["The rings have disappeared","The rings are edge-on and invisible","The rings have opened back up to about 7.5°, the best view since 2023","Saturn is closer to the Sun than usual"],
+      a: 2
+    },
+    {
+      q: "What makes the Draconids unusual compared to most meteor showers?",
+      opts: ["They're only visible from the Southern Hemisphere","They're best viewed in the evening, not after midnight","They only happen once a decade","They move slower than any other shower"],
+      a: 1
+    },
+    {
+      q: "The Orionid meteor shower is debris from which comet?",
+      opts: ["Comet NEOWISE","Halley's Comet","Comet Hale-Bopp","Comet Tempel 2"],
+      a: 1
+    },
+    {
+      q: "What made the October 1, 2026 Crew-13 docking historic?",
+      opts: ["It was the first all-female crew","It took over 48 hours to dock","It docked in under 8 hours — the fastest U.S. crewed rendezvous ever","It was the last Crew Dragon flight"],
+      a: 2
+    },
+    {
+      q: "What milestone does ISRO's SSLV reach this October?",
+      opts: ["Its first launch ever","Its first commercial flight","Its retirement from service","Its first crewed flight"],
+      a: 1
+    }
+  ];
+  let current = 0, score = 0;
+  const qText = document.getElementById('qText');
+  const qOptions = document.getElementById('qOptions');
+  const qProgress = document.getElementById('qProgress');
+  const quizWrap = document.getElementById('quizWrap');
+  const quizResult = document.getElementById('quizResult');
+
+  function renderQuestion(){
+    const item = questions[current];
+    qProgress.textContent = `Question ${current+1} / ${questions.length}`;
+    qText.textContent = item.q;
+    qOptions.innerHTML = '';
+    item.opts.forEach((opt, i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'q-opt';
+      btn.textContent = opt;
+      btn.addEventListener('click', ()=> selectAnswer(i, btn));
+      qOptions.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(i, btn){
+    const item = questions[current];
+    const allBtns = qOptions.querySelectorAll('.q-opt');
+    allBtns.forEach(b=>b.disabled = true);
+    if(i === item.a){
+      btn.classList.add('correct');
+      score++;
+    } else {
+      btn.classList.add('wrong');
+      allBtns[item.a].classList.add('correct');
+    }
+    setTimeout(()=>{
+      current++;
+      if(current < questions.length){
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }, 900);
+  }
+
+  function showResult(){
+    quizWrap.style.display = 'none';
+    quizResult.style.display = 'block';
+    document.getElementById('qScoreText').textContent = `${score} / ${questions.length}`;
+    const notes = {
+      6:"Perfect — you basically wrote this episode.",
+      5:"Excellent skywatching instincts.",
+      4:"Solid! A rewatch of one segment and you're golden.",
+      3:"Halfway there — worth another look at the mission timeline.",
+      2:"Good start — the SkyWatch segment has more clues.",
+      1:"Give the episode another watch and try again.",
+      0:"Give the episode another watch and try again."
+    };
+    document.getElementById('qScoreNote').textContent = notes[score] || notes[0];
+  }
+
+  document.getElementById('qRestart').addEventListener('click', ()=>{
+    current = 0; score = 0;
+    quizResult.style.display = 'none';
+    quizWrap.style.display = 'block';
+    renderQuestion();
+  });
+
+  renderQuestion();
+})();
+</script>
+</body>
+</html>
