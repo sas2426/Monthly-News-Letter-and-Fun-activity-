@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpaceYMe · November 2026 SkyWatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0A0E1F;--card:#131A34;--card-hi:#1B2447;--violet:#7C6FEE;--amber:#F4A93C;--aqua:#3FE0C5;--ink:#ECEBFF;--ink-dim:#9AA0C4;--line:rgba(236,235,255,0.12);--radius:14px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.55;overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  ::selection{background:var(--violet);color:#fff;}
+  #starfield{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 5vw;background:rgba(10,14,31,0.75);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:1.05rem;}
+  .brand-dot{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber);}
+  .navlinks{display:none;gap:22px;font-size:0.82rem;color:var(--ink-dim);}
+  .navlinks a{text-decoration:none;color:inherit;transition:color .2s;}
+  .navlinks a:hover{color:var(--aqua);}
+  @media(min-width:800px){.navlinks{display:flex;}}
+  .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 6vw 80px;}
+  .eyebrow{font-family:'JetBrains Mono';font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--aqua);margin-bottom:18px;opacity:0;animation:fadeUp .9s ease forwards;}
+  .hero h1{font-size:clamp(2.4rem,6vw,4.6rem);font-weight:700;line-height:1.05;max-width:18ch;opacity:0;animation:fadeUp .9s ease .15s forwards;}
+  .hero h1 span{color:var(--amber);}
+  .hero p.sub{margin-top:22px;max-width:54ch;color:var(--ink-dim);font-size:1.05rem;opacity:0;animation:fadeUp .9s ease .3s forwards;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .moon-wrap{margin-top:56px;width:min(72vw,300px);aspect-ratio:1/1;opacity:0;animation:fadeUp 1s ease .45s forwards;}
+  .moon-wrap svg{width:100%;height:100%;overflow:visible;}
+  #moonDisc,#moonGlow{transition:r .6s cubic-bezier(.4,0,.2,1);}
+  .toggle{margin-top:24px;display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;gap:4px;}
+  .toggle button{font-family:'JetBrains Mono';font-size:0.7rem;padding:8px 14px;border-radius:999px;border:none;background:transparent;color:var(--ink-dim);cursor:pointer;transition:all .2s;}
+  .toggle button.active{background:var(--violet);color:#fff;}
+  #moonReadout{margin-top:14px;font-family:'JetBrains Mono';font-size:0.82rem;color:var(--amber);max-width:36ch;}
+  .scroll-cue{position:absolute;bottom:28px;font-size:0.7rem;color:var(--ink-dim);letter-spacing:0.1em;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .scroll-cue::after{content:'';width:1px;height:26px;background:linear-gradient(var(--ink-dim),transparent);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
+  section{position:relative;z-index:1;padding:100px 6vw;max-width:1180px;margin:0 auto;}
+  .section-head{margin-bottom:44px;max-width:60ch;}
+  .section-tag{font-family:'JetBrains Mono';font-size:0.75rem;color:var(--amber);letter-spacing:0.12em;text-transform:uppercase;display:block;margin-bottom:10px;}
+  .section-head h2{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:600;}
+  .section-head p{color:var(--ink-dim);margin-top:12px;}
+  .grid{display:grid;gap:18px;}
+  .grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+  .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;transition:transform .25s,border-color .25s,background .25s;}
+  .card:hover{transform:translateY(-4px);border-color:var(--violet);background:var(--card-hi);}
+  .card .date{font-family:'JetBrains Mono';font-size:0.72rem;color:var(--aqua);letter-spacing:0.05em;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .date-ring{width:8px;height:8px;border:2px solid var(--aqua);border-radius:50%;}
+  .card h3{font-size:1.15rem;font-weight:600;margin-bottom:8px;}
+  .card p{color:var(--ink-dim);font-size:0.92rem;}
+  .card .tag{display:inline-block;margin-top:14px;font-family:'JetBrains Mono';font-size:0.68rem;color:var(--ink-dim);border:1px solid var(--line);padding:3px 9px;border-radius:999px;}
+  .timeline{position:relative;padding-left:28px;border-left:1px solid var(--line);}
+  .t-item{position:relative;padding-bottom:40px;}
+  .t-item:last-child{padding-bottom:0;}
+  .t-item::before{content:'';position:absolute;left:-33.5px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2px solid var(--violet);}
+  .t-item .date{font-family:'JetBrains Mono';font-size:0.72rem;color:var(--amber);margin-bottom:6px;}
+  .t-item h3{font-size:1.2rem;margin-bottom:6px;}
+  .t-item p{color:var(--ink-dim);font-size:0.94rem;max-width:64ch;}
+  .flag{font-size:0.85rem;margin-right:6px;}
+  .globe-strip{display:flex;flex-wrap:wrap;gap:14px;}
+  .globe-chip{flex:1 1 220px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;gap:12px;align-items:flex-start;}
+  .globe-chip .flag{font-size:1.4rem;line-height:1;}
+  .globe-chip h4{font-size:0.98rem;margin-bottom:4px;}
+  .globe-chip p{color:var(--ink-dim);font-size:0.86rem;}
+  .game-card{background:linear-gradient(160deg,var(--card),var(--card-hi));border:1px solid var(--line);border-radius:var(--radius);padding:30px;}
+  .game-card h3{font-size:1.3rem;margin-bottom:8px;}
+  .game-card p.desc{color:var(--ink-dim);font-size:0.92rem;margin-bottom:18px;}
+  #meteorCanvas{width:100%;aspect-ratio:16/9;background:radial-gradient(ellipse at 50% 0%,#141c3d,#070a17);border-radius:10px;display:block;cursor:crosshair;touch-action:none;}
+  .game-hud{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-family:'JetBrains Mono';font-size:0.85rem;}
+  .btn{font-family:'JetBrains Mono';font-size:0.8rem;background:var(--violet);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;transition:background .2s,transform .2s;}
+  .btn:hover{background:#6a5df0;transform:translateY(-1px);}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .q-progress{font-family:'JetBrains Mono';font-size:0.75rem;color:var(--ink-dim);margin-bottom:14px;}
+  .q-text{font-size:1.08rem;font-weight:600;margin-bottom:16px;}
+  .q-options{display:grid;gap:10px;}
+  .q-opt{text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 16px;color:var(--ink);cursor:pointer;font-size:0.92rem;transition:all .18s;}
+  .q-opt:hover{border-color:var(--aqua);}
+  .q-opt.correct{border-color:var(--aqua);background:rgba(63,224,197,0.12);color:var(--aqua);}
+  .q-opt.wrong{border-color:#F4634C;background:rgba(244,99,76,0.12);color:#F4988A;}
+  .q-opt[disabled]{cursor:default;}
+  #quizResult{display:none;text-align:center;padding:30px 0;}
+  #quizResult h4{font-size:1.6rem;color:var(--amber);margin-bottom:8px;}
+  .activity-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
+  .activity-num{font-family:'JetBrains Mono';font-size:0.7rem;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.1em;}
+  .activity-card h4{margin-top:10px;font-size:1.05rem;}
+  .activity-card ul{margin-top:12px;padding-left:18px;color:var(--ink-dim);font-size:0.88rem;}
+  .activity-card li{margin-bottom:6px;}
+  footer{position:relative;z-index:1;text-align:center;padding:70px 6vw 50px;color:var(--ink-dim);border-top:1px solid var(--line);margin-top:40px;}
+  footer .brand{justify-content:center;margin-bottom:10px;}
+  footer p{font-size:0.85rem;}
+  footer .tagline{font-family:'Space Grotesk';color:var(--ink);font-size:1rem;margin-bottom:18px;}
+  .note{font-size:0.78rem;color:var(--ink-dim);margin-top:10px;border-left:2px solid var(--violet);padding-left:10px;}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<nav>
+  <div class="brand"><span class="brand-dot"></span> SpaceYMe</div>
+  <div class="navlinks"><a href="#sky">SkyWatch</a><a href="#missions">Missions</a><a href="#globe">Around the Globe</a><a href="#play">Play</a></div>
+</nav>
+
+<section class="hero">
+  <span class="eyebrow">SpaceYMe Monthly Edition · November 2026</span>
+  <h1>Fireballs, a Planet Meet &amp; a <span>Supermoon</span></h1>
+  <p class="sub">Space · Aerospace · Science · Research — the Taurids kick off the month, Mars meets Jupiter before dawn, and the Beaver supermoon rises beside the Pleiades.</p>
+  <div class="moon-wrap">
+    <svg viewBox="0 0 300 300">
+      <circle id="moonGlow" cx="150" cy="150" r="118" fill="#F4A93C" opacity="0.12"/>
+      <circle id="moonDisc" cx="150" cy="150" r="105" fill="#ECEBFF"/>
+      <circle cx="120" cy="125" r="14" fill="#9AA0C4" opacity="0.35"/>
+      <circle cx="175" cy="170" r="20" fill="#9AA0C4" opacity="0.3"/>
+      <circle cx="140" cy="190" r="9" fill="#9AA0C4" opacity="0.3"/>
+    </svg>
+  </div>
+  <div class="toggle">
+    <button data-mode="typical">Typical full Moon</button>
+    <button class="active" data-mode="super">Beaver supermoon · Nov 24</button>
+  </div>
+  <div id="moonReadout">One of the two closest full Moons of 2026 — slightly larger and brighter than usual.</div>
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<section id="sky">
+  <div class="section-head">
+    <span class="section-tag">Segment 01 — SkyWatch Highlights</span>
+    <h2>What to look up for this month</h2>
+    <p>November rewards early risers: the best planets sit in the east before dawn. A new Moon on Nov 9 gives the darkest skies of the month.</p>
+  </div>
+  <div class="grid cols-3">
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>NOV 4–5 &amp; 11–12 · LATE EVENING</div>
+      <h3>Taurid fireballs</h3>
+      <p>Southern Taurids peak Nov 4–5 and Northern Taurids Nov 11–12. Only about 5 meteors an hour, but they're famous for bright, slow fireballs radiating from near the Pleiades — and both peaks fall around a dim Moon.</p>
+      <span class="tag">no equipment needed</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>NOV 16 · PRE-DAWN</div>
+      <h3>Mars meets Jupiter</h3>
+      <p>The two planets pass just about 1.2° apart in the eastern morning sky, near the bright star Regulus in Leo. They return with the Moon on Nov 30 — an easy pair from India too, before sunrise.</p>
+      <span class="tag">naked eye</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>NOV 17–18 · AFTER MIDNIGHT</div>
+      <h3>Leonids — dark skies, modest show</h3>
+      <p>Fast meteors from Leo, around 10–15 an hour at best. The Moon sets early, so the window from about 2 a.m. to dawn is dark. Not a storm year — but a pleasant, uncrowded watch.</p>
+      <span class="tag">no equipment needed</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>NOV 24 · EVENING</div>
+      <h3>Beaver supermoon + Pleiades</h3>
+      <p>The first supermoon since January rises close to the Pleiades cluster. Moonlight will drown the cluster's faint stars, but the pairing is a lovely naked-eye and photo moment.</p>
+      <span class="tag">naked eye</span>
+    </div>
+    <div class="card">
+      <div class="date"><span class="date-ring"></span>NOV 25–26 · ALL NIGHT</div>
+      <h3>Uranus at opposition</h3>
+      <p>Uranus sits opposite the Sun in Taurus, as close and bright as it gets this year (magnitude about 5.6). Binoculars or a telescope will show a steady blue-green dot — easier on moonless nights, so try around Nov 9 or in early December.</p>
+      <span class="tag">binoculars or telescope</span>
+    </div>
+  </div>
+</section>
+
+<section id="missions">
+  <div class="section-head">
+    <span class="section-tag">Segment 02 — Aerospace &amp; Missions</span>
+    <h2>Settling in, checking out, getting ready</h2>
+    <p>November is a quieter, in-between month in orbit — new crews and new telescopes settling into their work.</p>
+  </div>
+  <div class="timeline">
+    <div class="t-item">
+      <div class="date">NASA · COMMISSIONING</div>
+      <h3><span class="flag">🇺🇸</span>Roman Space Telescope checks out its instruments</h3>
+      <p>Launched Aug 30 on a Falcon Heavy, Roman heads for (and then operates near) the Sun–Earth L2 point, about a million miles away. A multi-month commissioning phase tests the Wide Field Instrument and Coronagraph before science surveys for dark energy and exoplanets begin.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ISS · EXPEDITION ONGOING</div>
+      <h3><span class="flag">🇺🇸</span>Crew-13 settles into a six-month stay</h3>
+      <p>The crew that docked on Oct 1 — Jessica Watkins, Luke Delaney, Sergey Teteryatnikov and CSA's Joshua Kutryk — is now into its long-duration science and maintenance routine aboard the station.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">ISRO · NET NOVEMBER — UNCONFIRMED</div>
+      <h3><span class="flag">🇮🇳</span>Gaganyaan G1: watch this space</h3>
+      <p>Launch calendars list the uncrewed G1 test flight, carrying the humanoid robot Vyommitra, as no earlier than November — but ISRO hasn't confirmed a date and has said only that it is striving for end-2026, with safety checks setting the pace. A slip is possible.</p>
+    </div>
+    <div class="t-item">
+      <div class="date">CNSA · ONGOING</div>
+      <h3><span class="flag">🇨🇳</span>Tianwen-2 works at Kamoʻoalewa</h3>
+      <p>China's asteroid mission continues at the quasi-moon, with a sample return to Earth planned for late 2027.</p>
+    </div>
+  </div>
+</section>
+
+<section id="globe">
+  <div class="section-head">
+    <span class="section-tag">Segment 03 — Around the Globe</span>
+    <h2>Every space agency, one month</h2>
+  </div>
+  <div class="globe-strip">
+    <div class="globe-chip"><span class="flag">🇺🇸</span><div><h4>United States</h4><p>Roman commissions at L2 while Crew-13 works aboard the ISS.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇮🇳</span><div><h4>India</h4><p>ISRO prepares for Gaganyaan G1 — date still unconfirmed.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇨🇳</span><div><h4>China</h4><p>Tianwen-2 continues work at Kamoʻoalewa ahead of a 2027 sample return.</p></div></div>
+    <div class="globe-chip"><span class="flag">🇨🇦</span><div><h4>Canada</h4><p>Joshua Kutryk continues his stay on the ISS as part of Crew-13.</p></div></div>
+  </div>
+</section>
+
+<section id="play">
+  <div class="section-head">
+    <span class="section-tag">Segment 04 — Play Along</span>
+    <h2>Fun activities &amp; games</h2>
+    <p>Because SkyWatch isn't just for watching — try these before or after you finish the video.</p>
+  </div>
+  <div class="grid cols-2">
+    <div class="game-card">
+      <h3>🔥 Fireball Catcher</h3>
+      <p class="desc">Taurids drift slowly and burn bright; Leonids streak past fast. Click or tap them before they leave. 30 seconds.</p>
+      <canvas id="meteorCanvas" width="800" height="450"></canvas>
+      <div class="game-hud">
+        <span>SCORE: <span id="mScore" class="mono">0</span></span>
+        <span>TIME: <span id="mTime" class="mono">30</span>s</span>
+        <button class="btn" id="mStart">Start</button>
+      </div>
+      <div class="note">Tip: big slow gold fireballs (Taurids) are worth 2. Fast thin streaks (Leonids) are worth 1.</div>
+    </div>
+    <div class="game-card">
+      <h3>🛰️ November SkyWatch Quiz</h3>
+      <p class="desc">Six questions from this month's episode.</p>
+      <div id="quizWrap">
+        <div class="q-progress" id="qProgress">Question 1 / 6</div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-options" id="qOptions"></div>
+      </div>
+      <div id="quizResult">
+        <h4 id="qScoreText"></h4>
+        <p style="color:var(--ink-dim);margin-bottom:16px;" id="qScoreNote"></p>
+        <button class="btn ghost" id="qRestart">Play again</button>
+      </div>
+    </div>
+  </div>
+  <div class="grid cols-3" style="margin-top:36px;">
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🔥 Fireball log</h4>
+      <ul><li>Watch 20 minutes in the late evening on Nov 4–5 or 11–12.</li><li>Note how many meteors you see — and how many were bright and slow.</li><li>Compare with the Leonids on Nov 18: which were faster?</li></ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>📷 Mars–Jupiter dawn photo</h4>
+      <ul><li>Look east before sunrise on Nov 16 and find the bright pair near Regulus.</li><li>Photograph them with a phone on a steady surface.</li><li>Repeat on Nov 30 and see how far they've moved.</li></ul>
+    </div>
+    <div class="activity-card">
+      <span class="activity-num">Activity</span>
+      <h4>🌕 Supermoon size test</h4>
+      <ul><li>Photograph the full Moon on Nov 24 with the same zoom you used on a past full Moon.</li><li>Measure the Moon's width in each photo.</li><li>The supermoon should be a little larger — but is it enough to notice by eye?</li></ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand"><span class="brand-dot"></span>SpaceYMe</div>
+  <p class="tagline">Discover Beyond Limits.</p>
+  <p>The universe never stops inspiring us. Keep looking up, stay curious, and join SpaceYMe next month for another journey through the cosmos.</p>
+  <p style="margin-top:14px;">Subscribe · Explore · Inspire</p>
+</footer>
+
+<script>
+(function(){
+  const canvas=document.getElementById('starfield'),ctx=canvas.getContext('2d');let w,h,stars=[];
+  function resize(){w=canvas.width=innerWidth;h=canvas.height=document.body.scrollHeight;stars=[];const n=Math.floor(w*h/9000);for(let i=0;i<n;i++)stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.3+.2,tw:Math.random()*6.28,s:Math.random()*.015+.005});}
+  function draw(t){ctx.clearRect(0,0,w,h);for(const s of stars){const a=.35+Math.sin(t*s.s+s.tw)*.35;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.283);ctx.fillStyle=`rgba(236,235,255,${Math.max(0,a)})`;ctx.fill();}requestAnimationFrame(draw);}
+  addEventListener('resize',resize);resize();requestAnimationFrame(draw);
+})();
+
+(function(){
+  const btns=document.querySelectorAll('.toggle button'),disc=document.getElementById('moonDisc'),glow=document.getElementById('moonGlow'),out=document.getElementById('moonReadout');
+  const st={typical:{r:92,g:104,t:"An average full Moon — the size you see most months."},super:{r:105,g:118,t:"One of the two closest full Moons of 2026 — slightly larger and brighter than usual."}};
+  btns.forEach(b=>b.addEventListener('click',()=>{btns.forEach(x=>x.classList.remove('active'));b.classList.add('active');const s=st[b.dataset.mode];disc.setAttribute('r',s.r);glow.setAttribute('r',s.g);out.textContent=s.t;}));
+})();
+
+(function(){
+  const c=document.getElementById('meteorCanvas'),ctx=c.getContext('2d'),sc=document.getElementById('mScore'),tm=document.getElementById('mTime'),sb=document.getElementById('mStart');
+  let ms=[],score=0,left=30,run=false,raf,tid,sid;
+  function rs(){const r=c.width/c.height;const d=c.clientWidth;c.width=d;c.height=d/r;}
+  addEventListener('resize',rs);
+  function spawn(){if(!run)return;const big=Math.random()<.35;ms.push({x:Math.random()*c.width,y:-10,vx:(Math.random()*2-1)*(big?.8:1.8),vy:big?Math.random()*1+1.4:Math.random()*3+4,len:big?18:Math.random()*35+25,w:big?5:2,col:big?'244,169,60':'63,224,197',v:big?2:1,big,caught:false});sid=setTimeout(spawn,Math.random()*450+300);}
+  function draw(){ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='rgba(236,235,255,.5)';for(let i=0;i<40;i++)ctx.fillRect((i*97)%c.width,(i*53)%c.height,1,1);
+    ms.forEach(m=>{if(m.caught)return;m.x+=m.vx;m.y+=m.vy;const g=ctx.createLinearGradient(m.x,m.y,m.x-m.vx*m.len,m.y-m.vy*m.len);g.addColorStop(0,`rgba(${m.col},1)`);g.addColorStop(1,`rgba(${m.col},0)`);ctx.strokeStyle=g;ctx.lineWidth=m.w;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x-m.vx*m.len,m.y-m.vy*m.len);ctx.stroke();});
+    ms=ms.filter(m=>!m.caught&&m.y<c.height+30&&m.x>-50&&m.x<c.width+50);if(run)raf=requestAnimationFrame(draw);}
+  c.addEventListener('pointerdown',e=>{if(!run)return;const r=c.getBoundingClientRect(),px=(e.clientX-r.left)*c.width/r.width,py=(e.clientY-r.top)*c.height/r.height;for(const m of ms){if(m.caught)continue;if(Math.hypot(px-m.x,py-m.y)<(m.big?30:24)){m.caught=true;score+=m.v;sc.textContent=score;return;}}});
+  function start(){rs();ms=[];score=0;left=30;run=true;sc.textContent=0;tm.textContent=30;sb.textContent='Restart';clearTimeout(sid);clearInterval(tid);cancelAnimationFrame(raf);spawn();draw();
+    tid=setInterval(()=>{left--;tm.textContent=left;if(left<=0){run=false;clearInterval(tid);clearTimeout(sid);ctx.fillStyle='rgba(10,14,31,.75)';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#ECEBFF';ctx.font='600 22px Space Grotesk, sans-serif';ctx.textAlign='center';ctx.fillText(`Time's up — you scored ${score}`,c.width/2,c.height/2);}},1000);}
+  sb.addEventListener('click',start);rs();
+})();
+
+(function(){
+  const Q=[
+    {q:"What are the Taurid meteors best known for?",o:["Very high hourly rates","Bright, slow-moving fireballs","Only appearing in daylight","Coming from the Southern Cross"],a:1},
+    {q:"Which two planets pass about 1.2° apart before dawn on November 16?",o:["Venus and Saturn","Mars and Jupiter","Uranus and Neptune","Mercury and Mars"],a:1},
+    {q:"Why is 2026 a good year to watch the Leonids?",o:["It's a storm year","The Moon sets early, leaving dark skies after midnight","They peak at noon","They are visible only from India"],a:1},
+    {q:"What is special about the November 24 full Moon?",o:["It's a total lunar eclipse","It's a supermoon rising near the Pleiades","It's a blue Moon","It doesn't appear at all"],a:1},
+    {q:"Uranus reaches opposition on November 25. What does that mean?",o:["It passes behind the Sun","It's opposite the Sun — closest and brightest for the year","It crosses Saturn's rings","It changes colour to red"],a:1},
+    {q:"What is the status of ISRO's Gaganyaan G1 date?",o:["Launched in October","Listed as no earlier than November, but not officially confirmed","Cancelled permanently","Moved to 2030"],a:1}
+  ];
+  let cur=0,score=0;const qt=document.getElementById('qText'),qo=document.getElementById('qOptions'),qp=document.getElementById('qProgress'),qw=document.getElementById('quizWrap'),qr=document.getElementById('quizResult');
+  function render(){const it=Q[cur];qp.textContent=`Question ${cur+1} / ${Q.length}`;qt.textContent=it.q;qo.innerHTML='';it.o.forEach((t,i)=>{const b=document.createElement('button');b.className='q-opt';b.textContent=t;b.addEventListener('click',()=>pick(i,b));qo.appendChild(b);});}
+  function pick(i,b){const it=Q[cur],all=qo.querySelectorAll('.q-opt');all.forEach(x=>x.disabled=true);if(i===it.a){b.classList.add('correct');score++;}else{b.classList.add('wrong');all[it.a].classList.add('correct');}
+    setTimeout(()=>{cur++;if(cur<Q.length)render();else done();},900);}
+  function done(){qw.style.display='none';qr.style.display='block';document.getElementById('qScoreText').textContent=`${score} / ${Q.length}`;
+    const n={6:"Perfect — you basically wrote this episode.",5:"Excellent skywatching instincts.",4:"Solid! One more watch and you're golden.",3:"Halfway there — try the SkyWatch segment again.",2:"Good start — the sky events have more clues.",1:"Give the episode another watch.",0:"Give the episode another watch."};
+    document.getElementById('qScoreNote').textContent=n[score];}
+  document.getElementById('qRestart').addEventListener('click',()=>{cur=0;score=0;qr.style.display='none';qw.style.display='block';render();});
+  render();
+})();
+</script>
+</body>
+</html>
